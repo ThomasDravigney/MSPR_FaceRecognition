@@ -12,3 +12,4 @@ class SecurityAgent(Entity):
     First_name = Column(String)
     CNI = Column(String)
     tools = relationship("Tool", back_populates="security_agent")
+
