@@ -21,11 +21,11 @@
                 <a href='/' class='btn btn-link'>&larr; Identification</a>
             </div>
             <div class='text-center'>
-              <img src="{{ url_for('static', filename='1234567890.jpg') }}" style='width:150px' alt="Photo de Fabrice Pellerin">
+              <img src="/static/photo_{{ model.agent.AgentId }}.jpg" style='width:150px' alt="Photo de {{ model.agent.First_name }} {{ model.agent.Name }}">
               <!-- {{ model.AI }} {{ model.Prediction }} -->
-              <h2>Agent n° {{ model.AgentId }}</h2>
+              <h2>{{ model.agent.First_name }} {{ model.agent.Name }}</h2>
             </div>
-            <form>
+            <form action="/take">
             <table class='table align-middle'>
               <tr>
                 <th># série</th>
@@ -34,41 +34,28 @@
               </tr>
               <tr>
                 <td colspan='3'>
-                  <select class='form-select' name='take' onchange='this.form.submit()'>
+                  <input type="hidden" name="id_agent" value="{{ model.agent.Id }}">
+                  <select class='form-select' name='id_tool' onchange='this.form.submit()'>
                     <option selected>Prendre un équipement</option>
-                    <optgroup label="Bandeau agent de sécurité cynophile">
-                      <option value='1'>A1234 Bandeau agent de sécurité cynophile n°1</option>
-                      <option value='2'>B2345 Bandeau agent de sécurité cynophile n°2</option>
-                      <option value='3'>C3456 Bandeau agent de sécurité cynophile n°3</option>
-                    </optgroup>
-                    <optgroup label="Gant d'intervention">
-                      <option value='11'>A1234 Gant d'intervention n°1</option>
-                      <option value='12'>B2345 Gant d'intervention n°2</option>
-                      <option value='13'>C3456 Gant d'intervention n°3</option>
-                    </optgroup>
-                    <optgroup label="Mousqueton">
-                      <option value='21'>A1234 Mousqueton n°1</option>
-                      <option value='22'>B2345 Mousqueton n°2</option>
-                      <option value='23'>C3456 Mousqueton n°3</option>
-                    </optgroup>
+                      {% for tool in model.available %}
+                      {% if loop.changed(tool.TypeId) %}
+                      {% if not loop.first %}
+                      </optgroup>
+                      {% endif %}
+                      <optgroup label="{{ tool.tool_type.Name }}">
+                      {% endif %}
+                      <option value='{{ tool.Id }}'>{{ tool.Serial_number }} {{ tool.Name }}</option>
+                      {% endfor %}
                   </select>
                 </td>
               </tr>
+              {% for tool in model.agent.tools %}
               <tr>
-                <td>L567891</td>
-                <td>Lampe torche n°10</td>
-                <td><a href='#'>Remettre</a></td>
+                <td>{{ tool.Serial_number }}</td>
+                <td>{{ tool.Name }}</td>
+                <td><a href='/back/{{ tool.Id }}'>Remettre</a></td>
               </tr>
-              <tr>
-                <td>L56789Z341</td>
-                <td>Bandeau agent de sécurité cynophile n°10</td>
-                <td><a href='#'>Remettre</a></td>
-              </tr>
-              <tr>
-                <td>R1234567</td>
-                <td>Taser n°1</td>
-                <td><a href='#'>Remettre</a></td>
-              </tr>
+              {% endfor %}
               </table>
               </form>
           </div>
