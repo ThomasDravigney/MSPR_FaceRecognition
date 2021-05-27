@@ -77,7 +77,7 @@ def login():
     # Choix de la vue
     if AgentId is None:
         # Erreur si l'agent n'est pas reconnu
-        return render_template('login.html', model="Agent non reconnu, réessayez.")
+        return render_template('login.html', model="Agent non reconnu, taux de ressemblance max :" + str(round(prediction[0][agentIndex]*100)) + "%.")
     else:
         # Affichage des équipements pour l'agent si reconnu
         return render_template('index.html', model={'Prediction':prediction[0][agentIndex], 'AI':agentIndex, 'AgentId':AgentId})
