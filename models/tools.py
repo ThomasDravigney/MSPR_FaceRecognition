@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
+from models.tool_type import ToolType
+from models.security_agent import SecurityAgent
 
 from models.entity import Entity
 

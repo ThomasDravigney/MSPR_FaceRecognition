@@ -4,10 +4,13 @@ import base64
 from io import BytesIO
 from PIL import Image, ImageOps
 from flask import Flask, render_template, request
+from db import init_db, db
 from models.security_agent import SecurityAgent
-
+from models.tools import Tool
 
 server = Flask(__name__, template_folder='views')
+with server.app_context():
+    init_db()
 
 
 @server.route('/', methods=['GET'])
@@ -62,17 +65,9 @@ def login():
     print(prediction[0][agentIndex])
     print(agentIndex)
     if prediction[0][agentIndex] > 0.8:
-
-
-        db_list = [1, 4, 5, 6, 3, 2]
-        if agentIndex < len(db_list):
-            AgentId = db_list[agentIndex]
-            print(AgentId)
-
-
-        # agent = db.query(SecurityAgent).filter(SecurityAgent.AI=agentIndex).first()
-        #if agent is not None:
-            # AgentId = agent.id
+        agent = db.query(SecurityAgent).filter(SecurityAgent.AI == str(agentIndex)).first()
+        if agent is not None:
+            AgentId = agent.Id
 
     # Choix de la vue
     if AgentId is None:
@@ -80,8 +75,34 @@ def login():
         return render_template('login.html', model="Agent non reconnu, taux de ressemblance max :" + str(round(prediction[0][agentIndex]*100)) + "%.")
     else:
         # Affichage des équipements pour l'agent si reconnu
-        return render_template('index.html', model={'Prediction':prediction[0][agentIndex], 'AI':agentIndex, 'AgentId':AgentId})
-        # Avec la base de données : return render_template('index.html', model=db.query(Agent).filter(Agent.AgentId = AgentId))
+        return render_agent_form(agent, prediction[0][agentIndex], agentIndex)
+
+
+def render_agent_form(agent, prediction=-1, agentIndex=-1):
+    return render_template('index.html', model={
+        'Prediction': prediction,
+        'AI': agentIndex,
+        'agent': agent,
+        'available': db.query(Tool).filter(Tool.AgentId != agent.Id).order_by(Tool.TypeId, Tool.Name)
+    })
+    # Avec la base de données : return render_template('index.html', model=db.query(Agent).filter(Agent.AgentId = AgentId))
+
+
+@server.route('/take', methods=['GET'])
+def take():
+    id_tool = request.args.get('id_tool')
+    id_agent = request.args.get('id_agent')
+    tool = db.query(Tool).filter(Tool.Id == id_tool).first()
+    agent = db.query(SecurityAgent).filter(SecurityAgent.Id == id_agent).first()
+    if tool is not None and agent is not None:
+        tool.AgentId = id_agent
+        db.commit()
+    return render_agent_form(agent)
+
+
+@server.teardown_appcontext
+def shutdown_session(exception=None):
+    db.remove()
 
 
 if __name__ == '__main__':
