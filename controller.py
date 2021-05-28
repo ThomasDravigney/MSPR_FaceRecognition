@@ -100,6 +100,16 @@ def take():
     return render_agent_form(agent)
 
 
+@server.route('/back/<id_agent>/<id_tool>')
+def back(id_agent, id_tool):
+    tool = db.query(Tool).filter(Tool.Id == id_tool).first()
+    agent = db.query(SecurityAgent).filter(SecurityAgent.Id == id_agent).first()
+    if tool is not None and agent is not None:
+        tool.AgentId = ''
+        db.commit()
+    return render_agent_form(agent)
+
+
 @server.teardown_appcontext
 def shutdown_session(exception=None):
     db.remove()

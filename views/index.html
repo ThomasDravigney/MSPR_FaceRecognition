@@ -53,7 +53,7 @@
               <tr>
                 <td>{{ tool.Serial_number }}</td>
                 <td>{{ tool.Name }}</td>
-                <td><a href='/back/{{ tool.Id }}'>Remettre</a></td>
+                <td><a href='/back/{{ model.agent.Id }}/{{ tool.Id }}'>Remettre</a></td>
               </tr>
               {% endfor %}
               </table>
